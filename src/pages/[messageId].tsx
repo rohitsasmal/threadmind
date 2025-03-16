@@ -82,12 +82,21 @@ export default function MessagePage() {
     });
   };
 
+  const goHome = () => {
+    router.push(`/`).then(() => {
+      router.reload(); // Reload the page after navigation
+    });
+  };
+
   if (!message) return <p>Loading...</p>;
 
   return (
     <div style={{ display: "flex", gap: "20px", padding: "20px", backgroundColor: "#000000", minHeight: "100vh" }}>
       <div style={{ flex: 2 }}>
         <h2>{message.text} (USER)</h2>
+
+        {/* Go Home Button */}
+        <button onClick={goHome} style={{ marginBottom: "10px" }}>Go Home</button>
 
         {/* Go to Parent Button with Reload */}
         {message.parent ? (
