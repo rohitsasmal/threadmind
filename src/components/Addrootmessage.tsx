@@ -11,7 +11,7 @@ export default function AddRootMessage({ onClose }: { onClose: () => void }) {
 
     let { error } = await supabase
       .from("messages")
-      .insert([{ text, type: "USER", parent: null, editable: true }]);
+      .insert([{ text, type: "ROOT", parent: null, editable: true }]);
 
     if (error) console.error(error);
     else {

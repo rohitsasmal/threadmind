@@ -7,6 +7,7 @@ import EditMessage from "../components/Editmessage";
 interface Message {
   id: string;
   text: string;
+  type: string;
   parent: string | null;
   editable: boolean;
 }
@@ -25,7 +26,7 @@ export default function MessagePage() {
     const fetchMessage = async () => {
       let { data, error } = await supabase
         .from("messages")
-        .select("id, text, parent, editable")
+        .select("id, text, type, parent, editable")
         .eq("id", messageId)
         .single();
         
@@ -40,7 +41,7 @@ export default function MessagePage() {
     const fetchChildren = async (parentId: string) => {
       let { data, error } = await supabase
         .from("messages")
-        .select("id, text, parent, editable")
+        .select("id, text, type, parent, editable")
         .eq("parent", parentId);
       
       if (error) console.error(error);
@@ -54,7 +55,7 @@ export default function MessagePage() {
       while (currentId) {
         let { data, error } = await supabase
           .from("messages")
-          .select("id, text, parent, editable")
+          .select("id, text, type, parent, editable")
           .eq("id", currentId)
           .single();
 
@@ -71,20 +72,20 @@ export default function MessagePage() {
   const goToParent = () => {
     if (message?.parent) {
       router.push(`/${message.parent}`).then(() => {
-        router.reload(); // Reload the page after navigation
+        router.reload();
       });
     }
   };
 
   const goToChild = (childId: string) => {
     router.push(`/${childId}`).then(() => {
-      router.reload(); // Reload the page after navigation
+      router.reload();
     });
   };
 
   const goHome = () => {
     router.push(`/`).then(() => {
-      router.reload(); // Reload the page after navigation
+      router.reload();
     });
   };
 
@@ -93,12 +94,10 @@ export default function MessagePage() {
   return (
     <div style={{ display: "flex", gap: "20px", padding: "20px", backgroundColor: "#000000", minHeight: "100vh" }}>
       <div style={{ flex: 2 }}>
-        <h2>{message.text} (USER)</h2>
+        <h2>{message.text} ({message.type})</h2>
 
-        {/* Go Home Button */}
         <button onClick={goHome} style={{ marginBottom: "10px" }}>Go Home</button>
 
-        {/* Go to Parent Button with Reload */}
         {message.parent ? (
           <button onClick={goToParent}>Go to Parent</button>
         ) : (
@@ -113,7 +112,7 @@ export default function MessagePage() {
         <ul>
           {children.map((child) => (
             <li key={child.id}>
-              <button onClick={() => goToChild(child.id)}>{child.text} (USER)</button>
+              <button onClick={() => goToChild(child.id)}>{child.text} ({child.type})</button>
             </li>
           ))}
         </ul>
@@ -125,7 +124,7 @@ export default function MessagePage() {
         <ul>
           {path.map((node) => (
             <li key={node.id}>
-              <button onClick={() => goToChild(node.id)}>{node.text} (USER)</button>
+              <button onClick={() => goToChild(node.id)}>{node.text} ({node.type})</button>
             </li>
           ))}
         </ul>
