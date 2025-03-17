@@ -21,6 +21,7 @@ export default function MessagePage() {
   const [message, setMessage] = useState<Message | null>(null);
   const [children, setChildren] = useState<Message[]>([]);
   const [path, setPath] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!messageId) return;
@@ -71,6 +72,36 @@ export default function MessagePage() {
 
     fetchMessage();
   }, [messageId]);
+
+  const deleteNode = async () => {
+    if (!message) return;
+    setLoading(true);
+
+    // Store the parentId before deleting the message
+    const parentId = message.parent;
+
+    // Delete the node and all its children
+    let { error } = await supabase
+      .from("messages")
+      .delete()
+      .eq("id", message.id);
+
+    if (error) {
+      console.error("Error deleting node:", error);
+      setLoading(false);
+      return;
+    }
+
+    // Redirect after deletion and refresh the page
+    if (message.type === "ROOT") {
+      router.push(`/`).then(() => router.reload());
+    } else {
+      router.push(`/${parentId}`).then(() => router.reload());
+    }
+
+    setLoading(false);
+};
+
 
   const goToParent = () => {
     if (message?.parent) {
@@ -125,6 +156,22 @@ export default function MessagePage() {
           <button disabled style={{ opacity: 0.5, marginBottom: "10px" }}>Root Node</button>
         )}
 
+        {/* Delete Node button */}
+        <button 
+          onClick={deleteNode} 
+          style={{
+            marginBottom: "10px",
+            backgroundColor: "red",
+            color: "white",
+            border: "none",
+            padding: "8px",
+            cursor: "pointer"
+          }} 
+          disabled={loading}
+        >
+          {loading ? "Deleting..." : "Delete Node"}
+        </button>
+
         {/* Create Editable Path Clone button (Disabled for ROOT nodes) */}
         {message.type !== "ROOT" && <CreateEditableClone path={path} messageId={message.id} messageParent={message.parent} messageType={message.type} messageText={message.text} />}
 
@@ -139,7 +186,7 @@ export default function MessagePage() {
 
       {/* Children section (Middle) */}
       <div style={{ flex: 1, overflowY: "auto", maxHeight: "500px", border: "1px solid white", padding: "10px" }}>
-        <h3>Children{' ('+(message?.type=='USER'?'Bot responses':'User prompts')+  ')'}</h3>
+        <h3>Children</h3>
         {children.length > 0 ? (
           <ul>
             {children.map((child) => (
