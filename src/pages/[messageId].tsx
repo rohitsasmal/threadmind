@@ -139,7 +139,7 @@ export default function MessagePage() {
 
       {/* Children section (Middle) */}
       <div style={{ flex: 1, overflowY: "auto", maxHeight: "500px", border: "1px solid white", padding: "10px" }}>
-        <h3>Children</h3>
+        <h3>Children{' ('+(message?.type=='USER'?'Bot responses':'User prompts')+  ')'}</h3>
         {children.length > 0 ? (
           <ul>
             {children.map((child) => (
