@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { supabase } from "../lib/supabaseClient";
 import AddMessage from "../components/Addmessage";
 import EditMessage from "../components/Editmessage";
+import GenerateResponse from "../components/Generateresponse";
 
 interface Message {
   id: string;
@@ -105,6 +106,9 @@ export default function MessagePage() {
         )}
 
         {message.editable && <EditMessage message={message} />}
+
+        {/* Show "Generate" button ONLY if the current message type is USER */}
+        {message.type === "USER" && <GenerateResponse parentId={message.id} path={path.map(p => p.text)} />}
       </div>
 
       <div style={{ flex: 1, overflowY: "auto", maxHeight: "500px", border: "1px solid white", padding: "10px" }}>
