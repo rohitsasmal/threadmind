@@ -172,7 +172,7 @@ export default function MessagePage() {
         </button>
 
         {/* Create Editable Path Clone button (Disabled for ROOT nodes) */}
-        {message.type !== "ROOT" && <CreateEditableClone path={path} messageId={message.id} messageParent={message.parent} messageType={message.type} messageText={message.text} />}
+        {false && <CreateEditableClone path={path} messageId={message.id} messageParent={message.parent} messageType={message.type} messageText={message.text} />}
 
         {/* Passes editability status to EditMessage */}
         <EditMessage message={message} />
