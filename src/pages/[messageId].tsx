@@ -19,7 +19,7 @@ export default function MessagePage() {
   
   const [message, setMessage] = useState<Message | null>(null);
   const [children, setChildren] = useState<Message[]>([]);
-  const [path, setPath] = useState<{ id: string; type: string; editable: boolean }[]>([]);
+  const [path, setPath] = useState<{ id: string; text: string; type: string; editable: boolean }[]>([]);
 
   useEffect(() => {
     if (!messageId) return;
@@ -35,7 +35,7 @@ export default function MessagePage() {
       else {
         setMessage(data);
         fetchChildren(data.id);
-        fetchPath(data.parent);
+        fetchPath(data.parent, data.editable);
       }
     };
 
@@ -49,9 +49,10 @@ export default function MessagePage() {
       else setChildren(data);
     };
 
-    const fetchPath = async (parentId: string | null) => {
-      let pathArray: { id: string; type: string; editable: boolean }[] = [];
+    const fetchPath = async (parentId: string | null, currentEditable: boolean) => {
+      let pathArray: { id: string; text: string; type: string; editable: boolean }[] = [];
       let currentId = parentId;
+      let foundUneditable = !currentEditable;
 
       while (currentId) {
         let { data, error } = await supabase
@@ -61,7 +62,11 @@ export default function MessagePage() {
           .single();
 
         if (error) break;
+
         pathArray.unshift(data);
+        if (foundUneditable && data.type !== "ROOT") data.editable = false;
+        if (!data.editable) foundUneditable = true;
+        
         currentId = data.parent;
       }
 
@@ -85,6 +90,12 @@ export default function MessagePage() {
     });
   };
 
+  const goToPathNode = (nodeId: string) => {
+    router.push(`/${nodeId}`).then(() => {
+      router.reload();
+    });
+  };
+
   const goHome = () => {
     router.push(`/`).then(() => {
       router.reload();
@@ -95,6 +106,7 @@ export default function MessagePage() {
 
   return (
     <div style={{ display: "flex", gap: "20px", padding: "20px", backgroundColor: "#000000", minHeight: "100vh" }}>
+      {/* Main message area */}
       <div style={{ flex: 2 }}>
         <h2>{message.text} ({message.type})</h2>
 
@@ -124,6 +136,7 @@ export default function MessagePage() {
         )}
       </div>
 
+      {/* Children messages section */}
       <div style={{ flex: 1, overflowY: "auto", maxHeight: "500px", border: "1px solid white", padding: "10px" }}>
         <h3>Children</h3>
         <ul>
@@ -136,12 +149,24 @@ export default function MessagePage() {
         <AddMessage parentId={message.id} />
       </div>
 
+      {/* Path section */}
       <div style={{ flex: 1, overflowY: "auto", maxHeight: "500px", border: "1px solid white", padding: "10px" }}>
         <h3>Path</h3>
         <ul>
           {path.map((node) => (
             <li key={node.id}>
-              <button onClick={() => goToChild(node.id)}>{node.text} ({node.type})</button>
+              <button 
+                onClick={() => goToPathNode(node.id)}
+                style={{
+                  color: node.editable ? "lightgreen" : "red",
+                  fontWeight: "bold",
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer"
+                }}
+              >
+                {node.text} ({node.type})
+              </button>
             </li>
           ))}
         </ul>

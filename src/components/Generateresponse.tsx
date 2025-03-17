@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 
 interface GenerateResponseProps {
   parentId: string;
-  path: { id: string; type: string }[];
+  path: { id: string; type: string; editable: boolean }[];
   messageId: string;
 }
 
@@ -37,7 +37,7 @@ export default function GenerateResponse({ parentId, path, messageId }: Generate
 
     // Collect all ancestors (including messageId) that are NOT ROOT
     const nodesToUpdate = path
-      .filter(node => node.type !== "ROOT")
+      .filter(node => node.type !== "ROOT") // Keep ROOT editable
       .map(node => node.id);
 
     nodesToUpdate.push(messageId); // Include the current message itself
