@@ -37,7 +37,20 @@ yarn install
 
 ---
 
-## 🔑 3. Set Up Environment Variables
+## 🔑 3. Set Up Supabase
+1. Run this in Supabase SQL editor:
+   
+   CREATE TABLE messages (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    parent UUID REFERENCES messages(id) ON DELETE CASCADE,
+    text TEXT NOT NULL,
+    type VARCHAR NOT NULL,
+    editable BOOLEAN DEFAULT true
+);
+
+---
+
+## 🔑 4. Set Up Environment Variables
 1. Create a .env.local file in the root folder:
    
    touch .env.local
@@ -51,7 +64,7 @@ yarn install
 
 ---
 
-## 🚀 4. Start the Development Server
+## 🚀 5. Start the Development Server
 Run:
 
 npm run dev
@@ -64,7 +77,7 @@ The app will be available at *http://localhost:3000*.
 
 ---
 
-## 💡 5. Build and Run in Production
+## 💡 6. Build and Run in Production
 To build and serve your app:
 
 npm run build
