@@ -25,7 +25,7 @@ The 'Generate' button appears ONLY on USER levels.
 Clicking Generate will produce a bot response(Currently lorem ipsum gibberish) as a Child of the current USER node.
 Generating bot response will also freeze all nodes from root to the current USER node and the newly created BOT node.
 This is so that generated bot responses remain 'frozen' along with their path.
-New edits may be added at any point in the path by simply adding new nodes. Currently needs an explicit copy paste.
+New edits may be added at any point in the path by simply adding new nodes. Currently needs an explicit copy paste via the Copy button in the 'Children' section.
 
 The path section shows path until current node. Aids navigation.
 Go To parent and Go to home also aid nav.

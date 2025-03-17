@@ -1,12 +1,12 @@
 ● Your architectural decisions, especially regarding the message branching system
-Simple nary tree structure, each node referencing a parent.
+Simple n-ary tree structure, each node referencing a parent.
 
 ● How you implemented both user message editing and AI response editing
 3 types of nodes, other than ROOT.
 1. USER: User prompts.
 2. BOTEDIT: Expected bot responses.
 3. BOT: Pure bot response. Generating a bot response freezes the entire root to current node path. Making them uneditable.
-
+Uneditable BOT messages may be copied to clipboard and edited, resulting in a BOTEDIT message.
 
 ● Your database schema design for tracking conversation branches
 -- Create the messages table
@@ -24,12 +24,14 @@ CREATE TABLE messages (
 GPT 'hiccups'. Some 'misinterpretations'.
 
 ● Your approach to using Supabase for database storage and RPC functions
+Simple message nodes with (Type, Text, Editable, Parent). Represents an nary tree.
 
 ● Areas you would improve or scale given more time
 Caching, UI
 
 ● If and how you used existing GitHub repositories, and how you integrated your original
 work
+Made a public repo threadmind.
 
 ● Your use of AI tools in the development process
 GPT
