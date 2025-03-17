@@ -47,7 +47,7 @@ export default function MessagePage() {
         .eq("parent", parentId);
       
       if (error) console.error(error);
-      else setChildren(data);
+      else setChildren(data || []);
     };
 
     const fetchPath = async (parentId: string | null) => {
@@ -66,7 +66,7 @@ export default function MessagePage() {
         currentId = data.parent;
       }
 
-      setPath(pathArray);
+      setPath(pathArray || []);
     };
 
     fetchMessage();
@@ -125,8 +125,8 @@ export default function MessagePage() {
           <button disabled style={{ opacity: 0.5, marginBottom: "10px" }}>Root Node</button>
         )}
 
-        {/* Create Editable Path Clone button (For non-root nodes) */}
-        {message.parent && <CreateEditableClone path={path} messageId={message.id} />}
+        {/* Create Editable Path Clone button (Disabled for ROOT nodes) */}
+        {message.type !== "ROOT" && <CreateEditableClone path={path} messageId={message.id} messageParent={message.parent} messageType={message.type} messageText={message.text} />}
 
         {/* Passes editability status to EditMessage */}
         <EditMessage message={message} />
@@ -140,37 +140,45 @@ export default function MessagePage() {
       {/* Children section (Middle) */}
       <div style={{ flex: 1, overflowY: "auto", maxHeight: "500px", border: "1px solid white", padding: "10px" }}>
         <h3>Children</h3>
-        <ul>
-          {children.map((child) => (
-            <li key={child.id}>
-              <button onClick={() => goToChild(child.id)}>{child.text} ({child.type})</button>
-            </li>
-          ))}
-        </ul>
+        {children.length > 0 ? (
+          <ul>
+            {children.map((child) => (
+              <li key={child.id}>
+                <button onClick={() => goToChild(child.id)}>{child.text} ({child.type})</button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p style={{ color: "white", opacity: 0.5 }}>No children yet.</p>
+        )}
         <AddMessage parentId={message.id} />
       </div>
 
       {/* Path section (Right) */}
       <div style={{ flex: 1, overflowY: "auto", maxHeight: "500px", border: "1px solid white", padding: "10px" }}>
         <h3>Path</h3>
-        <ul>
-          {path.map((node) => (
-            <li key={node.id}>
-              <button 
-                onClick={() => goToPathNode(node.id)}
-                style={{
-                  color: node.editable ? "lightgreen" : "red",
-                  fontWeight: "bold",
-                  border: "none",
-                  background: "transparent",
-                  cursor: "pointer"
-                }}
-              >
-                {node.text} ({node.type})
-              </button>
-            </li>
-          ))}
-        </ul>
+        {path.length > 0 ? (
+          <ul>
+            {path.map((node) => (
+              <li key={node.id}>
+                <button 
+                  onClick={() => goToPathNode(node.id)}
+                  style={{
+                    color: node.editable ? "lightgreen" : "red",
+                    fontWeight: "bold",
+                    border: "none",
+                    background: "transparent",
+                    cursor: "pointer"
+                  }}
+                >
+                  {node.text} ({node.type})
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p style={{ color: "white", opacity: 0.5 }}>No parent path.</p>
+        )}
       </div>
     </div>
   );

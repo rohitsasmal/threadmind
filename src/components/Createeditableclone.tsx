@@ -5,28 +5,34 @@ import { useRouter } from "next/router";
 interface CloneProps {
   path: { id: string; text: string; type: string; parent: string | null }[];
   messageId: string;
+  messageParent: string | null;
+  messageType: string;
+  messageText: string;
 }
 
-export default function CreateEditableClone({ path, messageId }: CloneProps) {
+export default function CreateEditableClone({ path, messageId, messageParent, messageType, messageText }: CloneProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const createClone = async () => {
     setLoading(true);
 
-    let newIdMap: { [oldId: string]: string } = {}; // Map old IDs to new cloned IDs
+    let newIdMap: { [oldId: string]: string } = {}; // Maps original IDs to cloned IDs
 
-    // Create clones for all nodes in the path
-    for (let i = 0; i < path.length; i++) {
-      const node = path[i];
+    // Filter out the root node (ROOT nodes should not be cloned)
+    const nodesToClone = path.filter(node => node.type !== "ROOT");
 
-      // Determine new type
+    // Clone all parents first
+    for (let i = 0; i < nodesToClone.length; i++) {
+      const node = nodesToClone[i];
+
+      // Determine new type (BOT → BOTEDIT, retain USER & BOTEDIT)
       let newType = node.type === "BOT" ? "BOTEDIT" : node.type;
 
-      // Determine parent: If it's the first node in the path, it will be NULL (new ROOT)
-      let newParent = i === 0 ? null : newIdMap[path[i - 1].id];
+      // Determine parent: If it's the first cloned node, its parent should be the original node's parent
+      let newParent = i === 0 ? messageParent : newIdMap[nodesToClone[i - 1].id];
 
-      // Insert the new cloned node
+      // Insert the cloned node
       let { data, error } = await supabase
         .from("messages")
         .insert([{ text: node.text, type: newType, parent: newParent, editable: true }])
@@ -39,36 +45,41 @@ export default function CreateEditableClone({ path, messageId }: CloneProps) {
         return;
       }
 
-      newIdMap[node.id] = data.id; // Map old ID to new ID
+      newIdMap[node.id] = data.id; // Map old ID to new cloned ID
     }
 
-    // Finally, clone the <messageId> itself as a child of the last cloned node
-    const originalMessage = path.find((node) => node.id === messageId);
-    if (originalMessage) {
-      let newType = originalMessage.type === "BOT" ? "BOTEDIT" : originalMessage.type;
-      let newParent = newIdMap[path[path.length - 1].id];
+    // Finally, clone the current message itself as a child of the last cloned node
+    let newType = messageType === "BOT" ? "BOTEDIT" : messageType;
+    let newParent = nodesToClone.length > 0 ? newIdMap[nodesToClone[nodesToClone.length - 1].id] : messageParent;
 
-      let { data, error } = await supabase
-        .from("messages")
-        .insert([{ text: originalMessage.text, type: newType, parent: newParent, editable: true }])
-        .select("id")
-        .single();
+    let { data, error } = await supabase
+      .from("messages")
+      .insert([{ text: messageText, type: newType, parent: newParent, editable: true }])
+      .select("id")
+      .single();
 
-      if (error) {
-        console.error("Error cloning messageId:", error);
-        setLoading(false);
-        return;
-      }
-
-      router.push(`/${data.id}`);
+    if (error) {
+      console.error("Error cloning messageId:", error);
+      setLoading(false);
+      return;
     }
 
+    // Redirect to the new cloned message
+    router.push(`/${data.id}`);
     setLoading(false);
     router.reload();
   };
 
   return (
-    <button onClick={createClone} disabled={loading} style={{ marginTop: "10px" }}>
+    <button 
+      onClick={createClone} 
+      disabled={loading} 
+      style={{ 
+        marginTop: "10px",
+        opacity: loading ? 0.5 : 1, 
+        cursor: loading ? "not-allowed" : "pointer"
+      }}
+    >
       {loading ? "Cloning..." : "Create Editable Path Clone"}
     </button>
   );
