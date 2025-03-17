@@ -1,0 +1,5 @@
+Areas of improvement:
+
+1. Naming/Labeling. The current naming system involves 'ROOT'/'CHILDREN' etc. Will need user friendliness and less technical terms in UI
+2. Navigation is based on a simple URL mod and refresh. Will be better as a SPA with dynamic rendering.
+3. Caching for better latency.

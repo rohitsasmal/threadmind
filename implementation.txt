@@ -1,0 +1,35 @@
+● Your architectural decisions, especially regarding the message branching system
+Simple nary tree structure, each node referencing a parent.
+
+● How you implemented both user message editing and AI response editing
+3 types of nodes, other than ROOT.
+1. USER: User prompts.
+2. BOTEDIT: Expected bot responses.
+3. BOT: Pure bot response. Generating a bot response freezes the entire root to current node path. Making them uneditable.
+
+
+● Your database schema design for tracking conversation branches
+-- Create the messages table
+CREATE TABLE messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    text TEXT NOT NULL,
+    type TEXT NOT NULL,
+    parent UUID REFERENCES messages(id),
+    editable BOOLEAN DEFAULT TRUE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+
+● Key challenges faced and how you overcame them
+GPT 'hiccups'. Some 'misinterpretations'.
+
+● Your approach to using Supabase for database storage and RPC functions
+
+● Areas you would improve or scale given more time
+Caching, UI
+
+● If and how you used existing GitHub repositories, and how you integrated your original
+work
+
+● Your use of AI tools in the development process
+GPT
