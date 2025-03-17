@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../lib/supabaseClient";
-import AddMessage from "../components/Addmessage";
-import EditMessage from "../components/Editmessage";
-import GenerateResponse from "../components/Generateresponse";
-import CreateEditableClone from "../components/Createeditableclone";
+import AddMessage from "../components/AddMessage";
+import EditMessage from "../components/EditMessage";
+import GenerateResponse from "../components/GenerateResponse";
+import CreateEditableClone from "../components/CreateEditableClone";
 
 interface Message {
   id: string;
@@ -143,8 +143,22 @@ export default function MessagePage() {
         {children.length > 0 ? (
           <ul>
             {children.map((child) => (
-              <li key={child.id}>
-                <button onClick={() => goToChild(child.id)}>{child.text} ({child.type})</button>
+              <li key={child.id} style={{
+                border: child.editable ? "2px solid lightgreen" : "2px solid red",
+                padding: "5px",
+                marginBottom: "5px"
+              }}>
+                <button 
+                  onClick={() => goToChild(child.id)}
+                  style={{
+                    background: "transparent",
+                    color: "white",
+                    border: "none",
+                    cursor: "pointer"
+                  }}
+                >
+                  {child.text} ({child.type})
+                </button>
               </li>
             ))}
           </ul>
@@ -160,14 +174,17 @@ export default function MessagePage() {
         {path.length > 0 ? (
           <ul>
             {path.map((node) => (
-              <li key={node.id}>
+              <li key={node.id} style={{
+                border: node.editable ? "2px solid lightgreen" : "2px solid red",
+                padding: "5px",
+                marginBottom: "5px"
+              }}>
                 <button 
                   onClick={() => goToPathNode(node.id)}
                   style={{
-                    color: node.editable ? "lightgreen" : "red",
-                    fontWeight: "bold",
-                    border: "none",
                     background: "transparent",
+                    color: "white",
+                    border: "none",
                     cursor: "pointer"
                   }}
                 >
