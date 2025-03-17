@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabaseClient";
 import AddMessage from "../components/Addmessage";
 import EditMessage from "../components/Editmessage";
 import GenerateResponse from "../components/Generateresponse";
+import CreateEditableClone from "../components/Createeditableclone";
 
 interface Message {
   id: string;
@@ -19,7 +20,7 @@ export default function MessagePage() {
   
   const [message, setMessage] = useState<Message | null>(null);
   const [children, setChildren] = useState<Message[]>([]);
-  const [path, setPath] = useState<{ id: string; text: string; type: string; editable: boolean }[]>([]);
+  const [path, setPath] = useState<Message[]>([]);
 
   useEffect(() => {
     if (!messageId) return;
@@ -35,7 +36,7 @@ export default function MessagePage() {
       else {
         setMessage(data);
         fetchChildren(data.id);
-        fetchPath(data.parent, data.editable);
+        fetchPath(data.parent);
       }
     };
 
@@ -49,10 +50,9 @@ export default function MessagePage() {
       else setChildren(data);
     };
 
-    const fetchPath = async (parentId: string | null, currentEditable: boolean) => {
-      let pathArray: { id: string; text: string; type: string; editable: boolean }[] = [];
+    const fetchPath = async (parentId: string | null) => {
+      let pathArray: Message[] = [];
       let currentId = parentId;
-      let foundUneditable = !currentEditable;
 
       while (currentId) {
         let { data, error } = await supabase
@@ -62,11 +62,7 @@ export default function MessagePage() {
           .single();
 
         if (error) break;
-
         pathArray.unshift(data);
-        if (foundUneditable && data.type !== "ROOT") data.editable = false;
-        if (!data.editable) foundUneditable = true;
-        
         currentId = data.parent;
       }
 
@@ -106,7 +102,8 @@ export default function MessagePage() {
 
   return (
     <div style={{ display: "flex", gap: "20px", padding: "20px", backgroundColor: "#000000", minHeight: "100vh" }}>
-      {/* Main message area */}
+      
+      {/* Main message area (Left) */}
       <div style={{ flex: 2 }}>
         <h2>{message.text} ({message.type})</h2>
 
@@ -121,11 +118,15 @@ export default function MessagePage() {
 
         <button onClick={goHome} style={{ marginBottom: "10px" }}>Go Home</button>
 
+        {/* Go to Parent button */}
         {message.parent ? (
-          <button onClick={goToParent}>Go to Parent</button>
+          <button onClick={goToParent} style={{ marginBottom: "10px" }}>Go to Parent</button>
         ) : (
-          <button disabled style={{ opacity: 0.5 }}>Root Node</button>
+          <button disabled style={{ opacity: 0.5, marginBottom: "10px" }}>Root Node</button>
         )}
+
+        {/* Create Editable Path Clone button (For non-root nodes) */}
+        {message.parent && <CreateEditableClone path={path} messageId={message.id} />}
 
         {/* Passes editability status to EditMessage */}
         <EditMessage message={message} />
@@ -136,7 +137,7 @@ export default function MessagePage() {
         )}
       </div>
 
-      {/* Children messages section */}
+      {/* Children section (Middle) */}
       <div style={{ flex: 1, overflowY: "auto", maxHeight: "500px", border: "1px solid white", padding: "10px" }}>
         <h3>Children</h3>
         <ul>
@@ -149,7 +150,7 @@ export default function MessagePage() {
         <AddMessage parentId={message.id} />
       </div>
 
-      {/* Path section */}
+      {/* Path section (Right) */}
       <div style={{ flex: 1, overflowY: "auto", maxHeight: "500px", border: "1px solid white", padding: "10px" }}>
         <h3>Path</h3>
         <ul>
