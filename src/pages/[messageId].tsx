@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../lib/supabaseClient";
-import AddMessage from "../components/AddMessage";
-import EditMessage from "../components/EditMessage";
-import GenerateResponse from "../components/GenerateResponse";
-import CreateEditableClone from "../components/CreateEditableClone";
+import AddMessage from "../components/Addmessage";
+import EditMessage from "../components/Editmessage";
+import GenerateResponse from "../components/Generateresponse";
+import CreateEditableClone from "../components/Createeditableclone";
 
 interface Message {
   id: string;
