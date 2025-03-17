@@ -128,6 +128,12 @@ export default function MessagePage() {
     });
   };
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard!"))
+      .catch(err => console.error("Failed to copy text:", err));
+  };
+
   if (!message) return <p>Loading...</p>;
 
   return (
@@ -192,7 +198,10 @@ export default function MessagePage() {
               <li key={child.id} style={{
                 border: child.editable ? "2px solid lightgreen" : "2px solid red",
                 padding: "5px",
-                marginBottom: "5px"
+                marginBottom: "5px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
               }}>
                 <button
                   onClick={() => goToChild(child.id)}
@@ -200,10 +209,28 @@ export default function MessagePage() {
                     background: "transparent",
                     color: "white",
                     border: "none",
-                    cursor: "pointer"
+                    cursor: "pointer",
+                    flexGrow: 1,
+                    textAlign: "left"
                   }}
                 >
                   {child.text} ({child.type})
+                </button>
+
+                {/* Copy to Clipboard Button */}
+                <button
+                  onClick={() => copyToClipboard(child.text)}
+                  style={{
+                    marginLeft: "10px",
+                    backgroundColor: "#4CAF50",
+                    color: "white",
+                    border: "none",
+                    padding: "5px 10px",
+                    cursor: "pointer",
+                    borderRadius: "5px"
+                  }}
+                >
+                  📋 Copy
                 </button>
               </li>
             ))}
@@ -213,6 +240,7 @@ export default function MessagePage() {
         )}
         <AddMessage parentId={message.id} />
       </div>
+
 
       {/* Path section (Right) */}
       <div style={{ flex: 1, overflowY: "auto", maxHeight: "500px", border: "1px solid white", padding: "10px" }}>
