@@ -19,7 +19,7 @@ export default function MessagePage() {
   
   const [message, setMessage] = useState<Message | null>(null);
   const [children, setChildren] = useState<Message[]>([]);
-  const [path, setPath] = useState<Message[]>([]);
+  const [path, setPath] = useState<{ id: string; type: string; editable: boolean }[]>([]);
 
   useEffect(() => {
     if (!messageId) return;
@@ -50,9 +50,9 @@ export default function MessagePage() {
     };
 
     const fetchPath = async (parentId: string | null) => {
-      let pathArray: Message[] = [];
+      let pathArray: { id: string; type: string; editable: boolean }[] = [];
       let currentId = parentId;
-      
+
       while (currentId) {
         let { data, error } = await supabase
           .from("messages")
@@ -64,6 +64,7 @@ export default function MessagePage() {
         pathArray.unshift(data);
         currentId = data.parent;
       }
+
       setPath(pathArray);
     };
 
@@ -97,6 +98,15 @@ export default function MessagePage() {
       <div style={{ flex: 2 }}>
         <h2>{message.text} ({message.type})</h2>
 
+        {/* Editable status display */}
+        <p style={{
+          color: message.editable ? "lightgreen" : "red",
+          fontWeight: "bold",
+          marginTop: "-10px"
+        }}>
+          Editable: {message.editable ? "Yes" : "No"}
+        </p>
+
         <button onClick={goHome} style={{ marginBottom: "10px" }}>Go Home</button>
 
         {message.parent ? (
@@ -105,10 +115,13 @@ export default function MessagePage() {
           <button disabled style={{ opacity: 0.5 }}>Root Node</button>
         )}
 
-        {message.editable && <EditMessage message={message} />}
+        {/* Passes editability status to EditMessage */}
+        <EditMessage message={message} />
 
         {/* Show "Generate" button ONLY if the current message type is USER */}
-        {message.type === "USER" && <GenerateResponse parentId={message.id} path={path.map(p => p.text)} />}
+        {message.type === "USER" && (
+          <GenerateResponse parentId={message.id} messageId={message.id} path={path} />
+        )}
       </div>
 
       <div style={{ flex: 1, overflowY: "auto", maxHeight: "500px", border: "1px solid white", padding: "10px" }}>

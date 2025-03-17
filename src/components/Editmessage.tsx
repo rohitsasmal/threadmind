@@ -1,13 +1,10 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useRouter } from "next/router";
-import React from "react";
 
 interface Message {
   id: string;
   text: string;
-  type: string;
-  parent: string | null;
   editable: boolean;
 }
 
@@ -22,8 +19,37 @@ export default function EditMessage({ message }: { message: Message }) {
 
   return (
     <div>
-      <input value={text} onChange={(e) => setText(e.target.value)} />
-      <button onClick={handleEdit}>Edit</button>
+      {message.editable ? (
+        <>
+          <input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            style={{
+              backgroundColor: "#222",
+              color: "white",
+              border: "1px solid white",
+              padding: "5px",
+              margin: "5px"
+            }}
+          />
+          <button
+            onClick={handleEdit}
+            style={{
+              backgroundColor: "transparent",
+              color: "white",
+              border: "1px solid white",
+              padding: "10px",
+              margin: "5px"
+            }}
+          >
+            Edit
+          </button>
+        </>
+      ) : (
+        <p style={{ color: "white", padding: "5px", margin: "5px", borderBottom: "1px solid white" }}>
+          {message.text}
+        </p>
+      )}
     </div>
   );
 }
